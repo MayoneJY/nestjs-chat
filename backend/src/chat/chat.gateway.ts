@@ -18,6 +18,7 @@ export class ChatGateway {
 
   @SubscribeMessage('joinRoom')
   async handleJoinRoom(@MessageBody() data: { chatroomId: number; room: string; user: string }, @ConnectedSocket() client: Socket){
+    console.log('join' + data.chatroomId);
     await this.chatService.addMessageQueue('System', data.chatroomId, `${data.user}님이 입장하셨습니다.`);
     client.join(data.room);
     this.server.to(data.room).emit('sendMessage', { user: 'System', message: `${data.user}님이 입장하셨습니다.` });
@@ -25,6 +26,7 @@ export class ChatGateway {
 
   @SubscribeMessage('leaveRoom')
   async handleLeaveRoom(@MessageBody() data: { chatroomId: number; room: string; user: string }, @ConnectedSocket() client: Socket){
+    console.log('leave' + data.chatroomId);
     await this.chatService.addMessageQueue('System', data.chatroomId, `${data.user}님이 퇴장하셨습니다.`);
     client.leave(data.room);
     this.server.to(data.room).emit('sendMessage', { user: 'System', message: `${data.user}님이 퇴장하셨습니다.` });

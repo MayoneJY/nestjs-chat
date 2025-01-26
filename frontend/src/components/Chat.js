@@ -12,23 +12,31 @@ const Chat = () => {
     const { name } = useParams();
     const [chatroomId, setChatroomId] = useState('');
 
-    useEffect(() => {
+    useEffect(async () => {
+        let chatroomIdTemp = '';
         // api call
-        axios.get('http://localhost:4000/chatroom/' + name)
+        await axios.get('http://localhost:4000/chatroom/' + name)
         .then((res) => {
+            chatroomIdTemp = res.data.chatroomId;
             setChatroomId(res.data.chatroomId);
         })
         .catch((res) => {
             window.location.href = '/';
+            return;
+        })
+        
+        await axios.get(`http://localhost:4000/chat?chatroomId=${chatroomIdTemp}&page=1`)
+        .then((res) => {
+            setMessages(res.data);
         })
 
         socket.on('sendMessage', (message) => {
             setMessages((prev) => [...prev, message]);
         });
 
-        socket.emit('joinRoom', {chatroomId: chatroomId, room: name, user: 'user'});
+        socket.emit('joinRoom', {chatroomId: chatroomIdTemp, room: name, user: 'user'});
         const handleBeforeUnload = () => {
-            socket.emit('leaveRoom', {chatroomId: chatroomId, room: name, user: 'user'})
+            socket.emit('leaveRoom', {chatroomId: chatroomIdTemp, room: name, user: 'user'})
         };
 
         window.addEventListener("beforeunload", handleBeforeUnload);

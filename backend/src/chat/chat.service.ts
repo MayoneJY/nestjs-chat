@@ -35,14 +35,14 @@ export class ChatService {
             return; // 이미 처리 중이거나 큐가 비었으면 중단
         }
         this.isProcessing = true;
-
+        console.log(this.messageQueue);
+        const chats: Chat[] = new Array<Chat>();
         for (const messageQueue of this.messageQueue) {
             const chatroomId = messageQueue.chatroomId;
             const chatroom = await this.chatroomRepository.findOne({where: {chatroomId}});
             if (!chatroom) {
                 continue;
             }
-            const chats: Chat[] = new Array<Chat>();
             for (const message of messageQueue.data) {
                 const chat = new Chat();
                 chat.chatroom = chatroom;
@@ -51,8 +51,8 @@ export class ChatService {
                 chat.createAt = message.createAt;
                 chats.push(chat);
             }
-            await this.chatRepository.save(chats);
         }
+        await this.chatRepository.save(chats);
         this.messageQueue = [];
         this.isProcessing = false;
         console.log('saveMessageQueue: 처리 완료');
@@ -73,5 +73,33 @@ export class ChatService {
                 data: [messageData],
             });
         }
+    }
+
+    public async getChats(chatroomId: number, page: number): Promise<Chat[]> {
+        const chatroom = await this.chatroomRepository.findOne({ where: { chatroomId } });
+        if (!chatroom) {
+            return [];
+        }
+        const chats: Chat[] = await this.chatRepository.find({
+            where: { chatroom },
+            order: { createAt: 'ASC' },
+            take: 50,
+            skip: (page - 1) * 50,
+        });
+        // 큐에 저장된 메시지도 가져오기
+        const messageQueue = this.messageQueue.find((queue) => queue.chatroomId === chatroomId);
+        if (messageQueue) {
+            for (const message of messageQueue.data) {
+                const chat = new Chat();
+                chat.chatroom = chatroom;
+                chat.user = message.user;
+                chat.message = message.message;
+                chat.createAt = message.createAt;
+                chats.push(chat);
+            }
+        }
+        chats.sort((a, b) => a.createAt.getTime() - b.createAt.getTime());
+
+        return chats;
     }
 }
