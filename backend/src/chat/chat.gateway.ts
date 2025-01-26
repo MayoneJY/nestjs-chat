@@ -17,16 +17,17 @@ export class ChatGateway {
   constructor(private readonly chatService: ChatService) {}
 
   @SubscribeMessage('joinRoom')
-  handleJoinRoom(@MessageBody() data: { room: string; username: string }, @ConnectedSocket() client: Socket){
-    
+  async handleJoinRoom(@MessageBody() data: { chatroomId: number; room: string; user: string }, @ConnectedSocket() client: Socket){
+    await this.chatService.addMessageQueue('System', data.chatroomId, `${data.user}님이 입장하셨습니다.`);
     client.join(data.room);
-    this.server.to(data.room).emit('sendMessage', { user: 'System', message: `${data.username}님이 입장하셨습니다.` });
+    this.server.to(data.room).emit('sendMessage', { user: 'System', message: `${data.user}님이 입장하셨습니다.` });
   }
 
   @SubscribeMessage('leaveRoom')
-  handleLeaveRoom(@MessageBody() data: { room: string; username: string }, @ConnectedSocket() client: Socket){
+  async handleLeaveRoom(@MessageBody() data: { chatroomId: number; room: string; user: string }, @ConnectedSocket() client: Socket){
+    await this.chatService.addMessageQueue('System', data.chatroomId, `${data.user}님이 퇴장하셨습니다.`);
     client.leave(data.room);
-    this.server.to(data.room).emit('sendMessage', { user: 'System', message: `${data.username}님이 퇴장하셨습니다.` });
+    this.server.to(data.room).emit('sendMessage', { user: 'System', message: `${data.user}님이 퇴장하셨습니다.` });
   }
 
   @SubscribeMessage('sendMessage')

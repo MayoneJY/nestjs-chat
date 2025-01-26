@@ -26,9 +26,9 @@ const Chat = () => {
             setMessages((prev) => [...prev, message]);
         });
 
-        socket.emit('joinRoom', {chatroomId: chatroomId, room: name, username: 'user'});
+        socket.emit('joinRoom', {chatroomId: chatroomId, room: name, user: 'user'});
         const handleBeforeUnload = () => {
-            socket.emit('leaveRoom', {chatroomId: chatroomId, room: name, username: 'user'})
+            socket.emit('leaveRoom', {chatroomId: chatroomId, room: name, user: 'user'})
         };
 
         window.addEventListener("beforeunload", handleBeforeUnload);
