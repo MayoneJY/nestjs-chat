@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -11,6 +11,20 @@ const Chat = () => {
     const [input, setInput] = useState('');
     const { name } = useParams();
     const [chatroomId, setChatroomId] = useState('');
+
+    const chatRef = useRef();
+
+    const chatStyle = {
+        width: '400px',
+        height: '500px',
+        border: '1px solid black',
+        // 가운데 정렬
+        margin: '10px auto',
+        borderRadius: '10px',
+        textAlign: 'left',
+        padding: '10px',
+        overflowY: 'scroll',
+    };
 
     useEffect(async () => {
         let chatroomIdTemp = '';
@@ -40,6 +54,7 @@ const Chat = () => {
         };
 
         window.addEventListener("beforeunload", handleBeforeUnload);
+        setTimeout(() => chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" }), 100);
         return () => {
             socket.off('sendMessage');
             window.removeEventListener("beforeunload", handleBeforeUnload);
@@ -50,10 +65,13 @@ const Chat = () => {
         const message = {chatroomId: chatroomId, room: name, user: 'user', message: input};
         socket.emit('sendMessage', message);
         setInput('');
+        // 스크롤 내림
+        setTimeout(() => chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" }), 100);
+        
     };
     return (
         <div>
-            <div>
+            <div style={chatStyle} ref={chatRef}>
                 {messages.map((msg, idx) => (
                 <div key={idx}>
                     <strong>{msg.user}:</strong> {msg.message}
@@ -65,6 +83,7 @@ const Chat = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                style={{width: '350px'}}
             />
             <button onClick={sendMessage}>Send</button>
         </div>
