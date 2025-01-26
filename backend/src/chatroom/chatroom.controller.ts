@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, NotFoundException } from '@nestjs/common';
 import { ChatroomService } from './chatroom.service'
 import { Get, Post, Delete, Body, Param } from '@nestjs/common';
 
@@ -18,7 +18,12 @@ export class ChatroomController {
 
     @Get(':room')
     async getChatroom(@Param('room') room: string) {
-        return await this.chatroomService.getChatroom(room);
+        // return await this.chatroomService.getChatroom(room);
+        const result = await this.chatroomService.getChatroom(room);
+        if (result) {
+            return result;
+        }
+        throw new NotFoundException('Chatroom not found');
     }
 
     @Delete(':room')

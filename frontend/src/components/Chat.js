@@ -2,6 +2,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
 
 const socket = io('http://localhost:4000');
 
@@ -11,6 +12,12 @@ const Chat = () => {
     const { name } = useParams();
 
     useEffect(() => {
+        // api call
+        axios.get('http://localhost:4000/chatroom/' + name)
+        .catch((res) => {
+            window.location.href = '/';
+        })
+
         socket.on('sendMessage', (message) => {
             setMessages((prev) => [...prev, message]);
         });
