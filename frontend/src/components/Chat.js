@@ -10,10 +10,14 @@ const Chat = () => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const { name } = useParams();
+    const [chatroomId, setChatroomId] = useState('');
 
     useEffect(() => {
         // api call
         axios.get('http://localhost:4000/chatroom/' + name)
+        .then((res) => {
+            setChatroomId(res.data.chatroomId);
+        })
         .catch((res) => {
             window.location.href = '/';
         })
@@ -22,9 +26,9 @@ const Chat = () => {
             setMessages((prev) => [...prev, message]);
         });
 
-        socket.emit('joinRoom', {room: name, username: 'user'});
+        socket.emit('joinRoom', {chatroomId: chatroomId, room: name, username: 'user'});
         const handleBeforeUnload = () => {
-            socket.emit('leaveRoom', {room: name, username: 'user'})
+            socket.emit('leaveRoom', {chatroomId: chatroomId, room: name, username: 'user'})
         };
 
         window.addEventListener("beforeunload", handleBeforeUnload);
@@ -35,7 +39,7 @@ const Chat = () => {
     }, []);
 
     const sendMessage = () => {
-        const message = {room: name, username: 'user', content: input};
+        const message = {chatroomId: chatroomId, room: name, user: 'user', message: input};
         socket.emit('sendMessage', message);
         setInput('');
     };
@@ -44,7 +48,7 @@ const Chat = () => {
             <div>
                 {messages.map((msg, idx) => (
                 <div key={idx}>
-                    <strong>{msg.username}:</strong> {msg.content}
+                    <strong>{msg.user}:</strong> {msg.message}
                 </div>
                 ))}
             </div>

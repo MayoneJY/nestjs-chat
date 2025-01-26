@@ -6,6 +6,7 @@ import { ChatroomModule } from './chatroom/chatroom.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Chatroom } from './chatroom/entities/chatroom/chatroom';
 import { ConfigModule } from '@nestjs/config';
+import { Chat } from './chat/entities/chat/chat';
 
 @Module({
   imports: [ 
@@ -17,7 +18,7 @@ import { ConfigModule } from '@nestjs/config';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [Chatroom], // 사용할 엔티티
+      entities: [Chatroom, Chat], // 사용할 엔티티
       synchronize: true, // 자동으로 스키마 동기화 (개발 환경에서만 사용 권장)
     }),
   ChatModule, ChatroomModule],
