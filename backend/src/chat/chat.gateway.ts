@@ -6,15 +6,12 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { ChatroomService } from 'src/chatroom/chatroom.service';
 
 
 @WebSocketGateway({ cors: { origin: 'http://localhost:3000', credentials: true } })
 export class ChatGateway {
   @WebSocketServer()
   server: Server;
-
-  constructor(private chatroomService: ChatroomService) {}
 
   @SubscribeMessage('joinRoom')
   handleJoinRoom(@MessageBody() data: { room: string; username: string }, @ConnectedSocket() client: Socket){
@@ -23,42 +20,15 @@ export class ChatGateway {
     this.server.to(data.room).emit('sendMessage', { username: 'System', content: `${data.username}님이 입장하셨습니다.` });
   }
 
-  @SubscribeMessage('sendMessage')
-  handleSendMessage(@MessageBody() message: { room: string; username: string; content: string }){
-    this.server.to(message.room).emit('sendMessage', message);
-  }
-
   @SubscribeMessage('leaveRoom')
   handleLeaveRoom(@MessageBody() data: { room: string; username: string }, @ConnectedSocket() client: Socket){
     client.leave(data.room);
     this.server.to(data.room).emit('sendMessage', { username: 'System', content: `${data.username}님이 퇴장하셨습니다.` });
   }
 
-  @SubscribeMessage('getRooms')
-  async handleGetRooms(@ConnectedSocket() client: Socket){
-    client.join('home');
-    // const rooms = Array.from(this.server.sockets.adapter.rooms.keys());
-    // const filteredRooms = rooms.filter((room) => !this.server.sockets.adapter.sids.has(room)); 
-    // client.emit('sendRooms', filteredRooms);
-
-    const rooms: string[] = await this.chatroomService.getChatrooms();
-    client.emit('sendRooms', rooms);
+  @SubscribeMessage('sendMessage')
+  handleSendMessage(@MessageBody() message: { room: string; username: string; content: string }){
+    this.server.to(message.room).emit('sendMessage', message);
   }
 
-  @SubscribeMessage('createRoom')
-  async handleCreateRoom(@MessageBody() room: string, @ConnectedSocket() client: Socket){
-    const result: Boolean = await this.chatroomService.createChatroom(room);
-    if (!result) {
-      client.emit('errorRoom', "이미 존재하는 방이거나 사용할 수 없는 이름입니다.");
-    }
-    else{
-      this.server.to('home').emit('createRoom', room);
-    }
-  }
-
-  @SubscribeMessage('deleteRoom')
-  async handleDeleteRoom(@MessageBody() room: string){
-    await this.chatroomService.deleteChatroom(room);
-    this.server.to('home').emit('removeRoom', room);
-  }
 }

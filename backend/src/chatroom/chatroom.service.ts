@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Chatroom } from './entities/chatroom/chatroom';
-import { get } from 'http';
 
 @Injectable()
 export class ChatroomService {
