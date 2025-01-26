@@ -82,7 +82,7 @@ export class ChatService {
         }
         const chats: Chat[] = await this.chatRepository.find({
             where: { chatroom },
-            order: { createAt: 'ASC' },
+            order: { createAt: 'DESC' },
             take: 50,
             skip: (page - 1) * 50,
         });
