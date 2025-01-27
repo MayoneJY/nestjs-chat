@@ -22,13 +22,22 @@ const Chat = () => {
     const chatStyle = {
         width: '400px',
         height: '500px',
-        border: '1px solid black',
-        // 가운데 정렬
-        margin: '10px auto',
-        borderRadius: '10px',
+        border: '1px solid #e5e7eb',
+        backgroundColor: '#f8fafc',
+        margin: '20px auto',
+        borderRadius: '12px',
         textAlign: 'left',
-        padding: '10px',
+        padding: '12px',
         overflowY: 'scroll',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+      };
+      
+    const messageBubbleStyle = {
+        margin: '8px 0',
+        padding: '8px 12px',
+        borderRadius: '8px',
+        backgroundColor: '#fff',
+        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
     };
 
     useEffect(() => {
@@ -123,23 +132,45 @@ const Chat = () => {
         setTimeout(() => chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" }), 100);
     };
     return (
-        <div>
-            <h1>{page}</h1>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div style={chatStyle} ref={chatRef}>
-                {messages.map((msg, idx) => (
-                <div key={idx} data-key={idx}>
-                    <strong>{msg.user}:</strong> {msg.message}
+            {messages.map((msg, idx) => (
+                <div key={idx} data-key={idx} style={messageBubbleStyle}>
+                <strong>{msg.user}:</strong> {msg.message}
                 </div>
-                ))}
+            ))}
             </div>
 
+            <div style={{ marginTop: '12px' }}>
             <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                style={{width: '350px'}}
+                style={{
+                width: '300px',
+                padding: '8px',
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+                marginRight: '8px',
+                outline: 'none',
+                }}
             />
-            <button onClick={sendMessage}>Send</button>
+            <button
+                onClick={sendMessage}
+                style={{
+                backgroundColor: '#3b82f6',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                }}
+            >
+                보내기
+            </button>
+            </div>
         </div>
     );
 };

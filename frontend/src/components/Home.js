@@ -10,21 +10,52 @@ const Home = () => {
     const [newRooms, setNewRooms] = useState([]);
     const [removeRooms, setRemoveRooms] = useState([]);
 
+    const containerStyle = {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+    };
+      
     const roomStyle = {
         position: 'relative',
         width: '400px',
-        height: '80px',
-        border: '1px solid black',
+        minHeight: '80px',
+        backgroundColor: '#f8fafc',
+        border: '1px solid #e5e7eb',
         cursor: 'pointer',
-        // 가운데 정렬
-        margin: '10px auto',
-        borderRadius: '10px',
+        margin: '12px auto',
+        borderRadius: '12px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        transition: 'transform 0.2s ease',
     };
-
+    
+    const roomHoverStyle = {
+        transform: 'scale(1.02)',
+    };
+    
     const removeButtonStyle = {
         position: 'absolute',
         right: '10px',
         top: '10px',
+        background: '#ef4444',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '6px',
+        padding: '4px 8px',
+        cursor: 'pointer',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+    };
+
+    const createRoomButtonStyle = {
+        margin: '16px 0',
+        backgroundColor: '#3b82f6',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '8px',
+        padding: '8px 16px',
+        cursor: 'pointer',
+        fontWeight: 'bold',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
     };
 
     useEffect(() => {
@@ -80,17 +111,32 @@ const Home = () => {
         socket.emit('deleteRoom', room);
     }
     return (
-        <div>
-            {rooms.map((room, idx) => (
-                <div key={idx}
-                    style={roomStyle} 
-                    className={`${newRooms.includes(room) ? 'new-room' : ''} ${removeRooms.includes(room) ? 'leave-room' : ''}`} 
+        <div style={containerStyle}>
+            {rooms.map((room, idx) => {
+            const isNewRoom = newRooms.includes(room);
+            const isRemovedRoom = removeRooms.includes(room);
+            return (
+                <div
+                    key={idx}
+                    style={roomStyle}
+                    className={`${isNewRoom ? 'new-room' : ''} ${isRemovedRoom ? 'leave-room' : ''}`}
+                    onMouseEnter={e => e.currentTarget.style.transform = roomHoverStyle.transform}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'none'}
                     onClick={() => handleRoomClick(room)}>
-                    <div style={{textAlign:"left", margin:"10px 0 0 10px"}}>{room}</div>
-                    <input type="button" value="제거" onClick={(e) => handleRoomRemove(e)} style={removeButtonStyle}/>
+                    <div style={{ textAlign: 'left', margin: '10px 0 0 10px', fontWeight: 'bold' }}>{room}</div>
+                    <button
+                        onClick={(e) => handleRoomRemove(e)}
+                        style={removeButtonStyle}>
+                        제거
+                    </button>
                 </div>
-            ))}
-            <input type="button" value="방 만들기" onClick={createRoom}/>
+            );
+            })}
+            <button
+                onClick={createRoom}
+                style={createRoomButtonStyle}>
+                방 만들기
+            </button>
         </div>
     );
 };
