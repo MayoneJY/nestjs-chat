@@ -16,6 +16,7 @@ const Chat = () => {
     const [scroll, setScroll] = useState(false);
     const [isEnd, setIsEnd] = useState(false);
     const [scrollLength, setScrollLength] = useState(0);
+    const [nickname, setNickname] = useState('');
 
     const chatRef = useRef();
 
@@ -84,6 +85,8 @@ const Chat = () => {
     };
 
     useEffect(async () => {
+        const nicknameTemp = localStorage.getItem('nickname');
+        setNickname(nicknameTemp);
         let chatroomIdTemp = '';
         // api call
         await axios.get('http://localhost:4000/chatroom/' + name)
@@ -105,9 +108,9 @@ const Chat = () => {
             setMessages((prev) => [...prev, message]);
         });
 
-        socket.emit('joinRoom', {chatroomId: chatroomIdTemp, room: name, user: 'user'});
+        socket.emit('joinRoom', {chatroomId: chatroomIdTemp, room: name, user: nicknameTemp});
         const handleBeforeUnload = () => {
-            socket.emit('leaveRoom', {chatroomId: chatroomIdTemp, room: name, user: 'user'})
+            socket.emit('leaveRoom', {chatroomId: chatroomIdTemp, room: name, user: nicknameTemp})
         };
 
         window.addEventListener("beforeunload", handleBeforeUnload);
@@ -125,7 +128,7 @@ const Chat = () => {
     }, []);
 
     const sendMessage = () => {
-        const message = {chatroomId: chatroomId, room: name, user: 'user', message: input};
+        const message = {chatroomId: chatroomId, room: name, user: nickname, message: input};
         socket.emit('sendMessage', message);
         setInput('');
         // 스크롤 내림

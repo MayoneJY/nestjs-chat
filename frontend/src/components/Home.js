@@ -59,6 +59,13 @@ const Home = () => {
     };
 
     useEffect(() => {
+        if (!localStorage.getItem('nickname')) {
+            const nickname = prompt('닉네임을 적어주세요.');
+            if (nickname) {
+                localStorage.setItem('nickname', nickname);
+            }
+        }
+
         socket.on('sendRooms', (roomList) => {
             console.log(roomList);
             setRooms(roomList);
